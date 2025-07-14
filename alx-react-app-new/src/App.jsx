@@ -1,13 +1,14 @@
-import Header from './Header';
-import UserProfile from './UserProfile';
-import MainContent from './MainContent';
-import Footer from './Footer';
+import React from 'react';
+import Header from './components/Header';
+import UserProfile from './components/UserProfile';
+import MainContent from './components/MainContent';
+import Footer from './components/Footer';
 
 function App() {
   return (
     <div>
       <Header />
-      <UserProfile name="Amara Nyei" age={22} bio="A passionate React developer." />
+      <UserProfile />
       <MainContent />
       <Footer />
     </div>
