@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { fetchUserData } from '../services/githubService';
 
 const Search = () => {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
-  const handleInputChange = (e) => {
-    setUsername(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(false);
     setUserData(null);
 
     try {
-      const response = await axios.get(`https://api.github.com/users/${username}`);
-      setUserData(response.data);
+      const data = await fetchUserData(username);
+      setUserData(data);
     } catch (err) {
-      setError('Looks like we can’t find the user');
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -33,26 +29,21 @@ const Search = () => {
         <input
           type="text"
           value={username}
-          onChange={handleInputChange}
+          onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter GitHub username"
-          required
         />
         <button type="submit">Search</button>
       </form>
 
       {loading && <p>Loading...</p>}
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
+      {error && <p>Looks like we cant find the user</p>}
       {userData && (
         <div>
-          <img src={userData.avatar_url} alt={userData.login} width="100" />
+          <img src={userData.avatar_url} alt="User Avatar" width={100} />
           <h2>{userData.name || userData.login}</h2>
-          <p>
-            <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
-              View GitHub Profile
-            </a>
-          </p>
+          <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
+            Visit GitHub Profile
+          </a>
         </div>
       )}
     </div>
