@@ -1,53 +1,128 @@
 import React, { useState } from 'react';
-import { fetchUserData } from '../services/githubService';
+import { searchUsers, getUserDetails } from '../services/githubService';
 
-const Search = () => {
-  const [username, setUsername] = useState('');
-  const [userData, setUserData] = useState(null);
+export default function Search() {
+  const [query, setQuery] = useState('');
+  const [location, setLocation] = useState('');
+  const [minRepos, setMinRepos] = useState('');
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const buildQuery = () => {
+    let q = query;
+    if (location) q += ` location:${location}`;
+    if (minRepos) q += ` repos:>=${minRepos}`;
+    return q;
+  };
+
+  const fetchUsers = async (pageToFetch = 1) => {
     setLoading(true);
-    setError(false);
-    setUserData(null);
-
+    setError(null);
     try {
-      const data = await fetchUserData(username);
-      setUserData(data);
+      const data = await searchUsers(buildQuery(), pageToFetch);
+
+      // For each user, fetch details
+      const detailedUsers = await Promise.all(
+        data.items.map(async (user) => {
+          const details = await getUserDetails(user.login);
+          return { ...user, ...details };
+        })
+      );
+
+      if (pageToFetch === 1) {
+        setUsers(detailedUsers);
+      } else {
+        setUsers((prev) => [...prev, ...detailedUsers]);
+      }
+      setPage(pageToFetch);
     } catch (err) {
-      setError(true);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchUsers(1);
+  };
+
+  const loadMore = () => {
+    fetchUsers(page + 1);
+  };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-3xl mx-auto p-4">
+      <form onSubmit={handleSearch} className="flex flex-col gap-4 mb-6">
         <input
           type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter GitHub username"
+          placeholder="Username"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="border p-2 rounded"
+          required
         />
-        <button type="submit">Search</button>
+        <input
+          type="text"
+          placeholder="Location (optional)"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <input
+          type="number"
+          placeholder="Minimum repositories (optional)"
+          value={minRepos}
+          onChange={(e) => setMinRepos(e.target.value)}
+          className="border p-2 rounded"
+          min={0}
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          disabled={loading}
+        >
+          {loading ? 'Searching...' : 'Search'}
+        </button>
       </form>
 
-      {loading && <p>Loading...</p>}
-      {error && <p>Looks like we cant find the user</p>}
-      {userData && (
-        <div>
-          <img src={userData.avatar_url} alt="User Avatar" width={100} />
-          <h2>{userData.name || userData.login}</h2>
-          <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
-            Visit GitHub Profile
-          </a>
-        </div>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      <ul>
+        {users.map((user) => (
+          <li key={user.id} className="flex items-center mb-4 border p-3 rounded shadow">
+            <img
+              src={user.avatar_url}
+              alt={`${user.login} avatar`}
+              className="w-16 h-16 rounded-full mr-4"
+            />
+            <div>
+              <a
+                href={user.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 font-semibold text-lg"
+              >
+                {user.login}
+              </a>
+              <p>Location: {user.location || 'N/A'}</p>
+              <p>Public Repos: {user.public_repos}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {users.length > 0 && (
+        <button
+          onClick={loadMore}
+          className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Load More'}
+        </button>
       )}
     </div>
   );
-};
-
-export default Search;
+}
