@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
-import { fetchUserData } from '../services/githubService';
+import axios from 'axios';
 
 const Search = () => {
   const [username, setUsername] = useState('');
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleInputChange = (e) => {
+    setUsername(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setUser(null);
+    setUserData(null);
 
     try {
-      const data = await fetchUserData(username);
-      setUser(data);
-    } catch {
-      setError("Looks like we can't find the user");
+      const response = await axios.get(`https://api.github.com/users/${username}`);
+      setUserData(response.data);
+    } catch (err) {
+      setError('Looks like we can’t find the user');
     } finally {
       setLoading(false);
     }
@@ -28,9 +32,9 @@ const Search = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Enter GitHub username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleInputChange}
+          placeholder="Enter GitHub username"
           required
         />
         <button type="submit">Search</button>
@@ -38,15 +42,17 @@ const Search = () => {
 
       {loading && <p>Loading...</p>}
 
-      {error && <p>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {user && (
+      {userData && (
         <div>
-          <img src={user.avatar_url} alt={`${user.login} avatar`} width="100" />
-          <h3>{user.name || user.login}</h3>
-          <a href={user.html_url} target="_blank" rel="noreferrer">
-            Visit GitHub Profile
-          </a>
+          <img src={userData.avatar_url} alt={userData.login} width="100" />
+          <h2>{userData.name || userData.login}</h2>
+          <p>
+            <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
+              View GitHub Profile
+            </a>
+          </p>
         </div>
       )}
     </div>
