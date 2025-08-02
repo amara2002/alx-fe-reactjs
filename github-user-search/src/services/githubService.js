@@ -1,15 +1,14 @@
-const BASE_URL = 'https://api.github.com';
+export async function searchUsers({ username, location, minRepos }) {
+  let query = "";
 
-export async function searchUsers(query, page = 1, perPage = 20) {
-  const url = `${BASE_URL}/search/users?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch users');
-  return res.json(); // includes items: [users basic info]
-}
+  if (username) query += `${username} in:login`;
+  if (location) query += ` location:${location}`;
+  if (minRepos) query += ` repos:>=${minRepos}`;
 
-export async function getUserDetails(username) {
-  const url = `${BASE_URL}/users/${username}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch details for ${username}`);
-  return res.json(); // includes location, public_repos, etc.
+  const url = `https://api.github.com/search/users?q=${encodeURIComponent(query)}&per_page=10`;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("GitHub API Error");
+
+  return response.json();
 }
