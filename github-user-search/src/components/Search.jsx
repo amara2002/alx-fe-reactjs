@@ -6,11 +6,11 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch detailed user info to get location
-  async function fetchUserDetails(username) {
+  // Renamed this function to fetchUserData as required
+  async function fetchUserData(username) {
     try {
       const res = await fetch(`https://api.github.com/users/${username}`);
-      if (!res.ok) throw new Error("Failed to fetch user details");
+      if (!res.ok) throw new Error("Failed to fetch user data");
       return await res.json();
     } catch {
       return null; // Return null if fetch fails
@@ -28,10 +28,9 @@ export default function Search() {
       if (!res.ok) throw new Error("Failed to fetch search results");
       const data = await res.json();
 
-      // For each user, fetch full details to get location
       const detailedUsers = await Promise.all(
         data.items.map(async (user) => {
-          const details = await fetchUserDetails(user.login);
+          const details = await fetchUserData(user.login);
           return {
             id: user.id,
             login: user.login,
