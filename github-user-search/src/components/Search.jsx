@@ -1,51 +1,39 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function Search({ onSearch }) {
-  const [username, setUsername] = useState("");
-  const [location, setLocation] = useState("");
-  const [minRepos, setMinRepos] = useState("");
+export default function Search() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch({ username, location, minRepos });
-  };
+  // async function to fetch data
+  async function handleSearch() {
+    if (!query) return;
+    try {
+      const response = await fetch(`https://api.example.com/search?q=${query}`);
+      const data = await response.json();
+      setResults(data.items || []);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col md:flex-row gap-4 p-4 bg-white rounded shadow max-w-4xl mx-auto"
-    >
+    <div>
       <input
         type="text"
-        placeholder="Username"
-        className="p-2 rounded border w-full md:w-1/3"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        aria-label="Username"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        placeholder="Search something..."
       />
-      <input
-        type="text"
-        placeholder="Location"
-        className="p-2 rounded border w-full md:w-1/3"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        aria-label="Location"
-      />
-      <input
-        type="number"
-        min="0"
-        placeholder="Minimum Repositories"
-        className="p-2 rounded border w-full md:w-1/4"
-        value={minRepos}
-        onChange={(e) => setMinRepos(e.target.value)}
-        aria-label="Minimum repositories"
-      />
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-      >
-        Search
-      </button>
-    </form>
+      <button onClick={handleSearch}>Search</button>
+
+      {/* conditional render results only if there are any */}
+      {results.length > 0 && (
+        <ul>
+          {results.map(item => (
+            <li key={item.id}>{item.name}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
