@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { fetchUserData, searchUsers } from "../services/githubService";
 
 export default function Search() {
   const [query, setQuery] = useState("");
@@ -6,27 +7,15 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  async function fetchUserData(username) {
-    try {
-      const res = await fetch(`https://api.github.com/users/${username}`);
-      if (!res.ok) throw new Error("Failed to fetch user data");
-      return await res.json();
-    } catch {
-      return null;
-    }
-  }
-
   async function handleSearch(e) {
-    e.preventDefault(); // ✅ prevent page reload
+    e.preventDefault();
     if (!query) return;
     setLoading(true);
     setError(null);
     setResults([]);
 
     try {
-      const res = await fetch(`https://api.github.com/search/users?q=${query}`);
-      if (!res.ok) throw new Error("Failed to fetch search results");
-      const data = await res.json();
+      const data = await searchUsers({ username: query });
 
       const detailedUsers = await Promise.all(
         data.items.map(async (user) => {
@@ -36,6 +25,7 @@ export default function Search() {
             login: user.login,
             html_url: user.html_url,
             location: details?.location || "Unknown",
+            avatar_url: user.avatar_url,
           };
         })
       );
@@ -66,14 +56,42 @@ export default function Search() {
 
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
+      {results.length === 0 && !loading && (
+        <p style={{ marginTop: 20 }}>Looks like we can't find the user</p>
+      )}
+
       {results.length > 0 && (
         <ul style={{ listStyle: "none", padding: 0, marginTop: 20 }}>
           {results.map((user) => (
-            <li key={user.id} style={{ marginBottom: 15, borderBottom: "1px solid #ccc", paddingBottom: 10 }}>
-              <a href={user.html_url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: "bold" }}>
-                {user.login}
-              </a>
-              <p>Location: {user.location}</p>
+            <li
+              key={user.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 15,
+                borderBottom: "1px solid #ccc",
+                paddingBottom: 10,
+              }}
+            >
+              <img
+                src={user.avatar_url}
+                alt={`${user.login}'s avatar`}
+                width={50}
+                height={50}
+                style={{ borderRadius: "50%" }}
+              />
+              <div>
+                <a
+                  href={user.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontWeight: "bold" }}
+                >
+                  {user.login}
+                </a>
+                <p>Location: {user.location}</p>
+              </div>
             </li>
           ))}
         </ul>
