@@ -1,7 +1,11 @@
-export default function App() {
+import UserProfile from './components/UserProfile'
+
+function App() {
   return (
-    <div className="bg-blue-600 text-white p-6 rounded">
-      Tailwind CSS is working!
+    <div className="min-h-screen bg-white">
+      <UserProfile />
     </div>
   )
 }
+
+export default App
