@@ -57,7 +57,7 @@ export default function Search() {
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {results.length === 0 && !loading && (
-        <p style={{ marginTop: 20 }}>Looks like we can't find the user</p>
+        <p style={{ marginTop: 20 }}>Looks like we cant find the user</p>
       )}
 
       {results.length > 0 && (
