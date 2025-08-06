@@ -6,18 +6,18 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Renamed this function to fetchUserData as required
   async function fetchUserData(username) {
     try {
       const res = await fetch(`https://api.github.com/users/${username}`);
       if (!res.ok) throw new Error("Failed to fetch user data");
       return await res.json();
     } catch {
-      return null; // Return null if fetch fails
+      return null;
     }
   }
 
-  async function handleSearch() {
+  async function handleSearch(e) {
+    e.preventDefault(); // ✅ prevent page reload
     if (!query) return;
     setLoading(true);
     setError(null);
@@ -51,16 +51,18 @@ export default function Search() {
   return (
     <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
       <h2>GitHub User Search</h2>
-      <input
-        type="text"
-        placeholder="Enter username"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{ width: "80%", padding: 8 }}
-      />
-      <button onClick={handleSearch} disabled={loading} style={{ padding: 8, marginLeft: 8 }}>
-        {loading ? "Searching..." : "Search"}
-      </button>
+      <form onSubmit={handleSearch}>
+        <input
+          type="text"
+          placeholder="Enter username"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ width: "80%", padding: 8 }}
+        />
+        <button type="submit" disabled={loading} style={{ padding: 8, marginLeft: 8 }}>
+          {loading ? "Searching..." : "Search"}
+        </button>
+      </form>
 
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
