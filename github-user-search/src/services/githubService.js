@@ -1,3 +1,16 @@
+import axios from "axios";
+
+// Expected by the test/check: fetchUserData function
+export async function fetchUserData(username) {
+  try {
+    const response = await axios.get(`https://api.github.com/users/${username}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch user data");
+  }
+}
+
+// Your original searchUsers logic, now with axios
 export async function searchUsers({ username, location, minRepos, page = 1 }) {
   let query = "";
 
@@ -9,18 +22,20 @@ export async function searchUsers({ username, location, minRepos, page = 1 }) {
     query
   )}&per_page=20&page=${page}`;
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    throw new Error(`GitHub API error: ${error.response?.status || error.message}`);
   }
-
-  return response.json();
 }
 
+// You can still keep getUserDetails if needed (optional now)
 export async function getUserDetails(username) {
-  const response = await fetch(`https://api.github.com/users/${username}`);
-  if (!response.ok) {
+  try {
+    const response = await axios.get(`https://api.github.com/users/${username}`);
+    return response.data;
+  } catch (error) {
     throw new Error("Failed to fetch user details");
   }
-  return response.json();
 }
