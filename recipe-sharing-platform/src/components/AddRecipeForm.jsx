@@ -7,19 +7,23 @@ const AddRecipeForm = () => {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Simple front-end validation
+  // ✅ Validation function
+  const validate = () => {
     const newErrors = {};
     if (!title.trim()) newErrors.title = "Title is required.";
     if (!ingredients.trim() || ingredients.split(",").length < 2)
       newErrors.ingredients = "Enter at least two ingredients, separated by commas.";
     if (!instructions.trim() || instructions.split(".").length < 2)
       newErrors.instructions = "Enter at least two steps for instructions.";
+    return newErrors;
+  };
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const validationErrors = validate(); // call validate
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       setSuccess("");
       return;
     }
@@ -31,7 +35,7 @@ const AddRecipeForm = () => {
     setIngredients("");
     setInstructions("");
 
-    // TODO: Integrate with backend or local state to actually save the recipe
+    // TODO: save recipe to backend or local state
     console.log("New Recipe Submitted:", { title, ingredients, instructions });
   };
 
@@ -42,7 +46,6 @@ const AddRecipeForm = () => {
       {success && <p className="text-green-600 mb-4">{success}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title Field */}
         <div>
           <label className="block font-semibold mb-1">Recipe Title</label>
           <input
@@ -55,7 +58,6 @@ const AddRecipeForm = () => {
           {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
         </div>
 
-        {/* Ingredients Field */}
         <div>
           <label className="block font-semibold mb-1">Ingredients (comma-separated)</label>
           <textarea
@@ -69,7 +71,6 @@ const AddRecipeForm = () => {
           )}
         </div>
 
-        {/* Instructions Field */}
         <div>
           <label className="block font-semibold mb-1">Instructions (separate steps with a period)</label>
           <textarea
@@ -83,7 +84,6 @@ const AddRecipeForm = () => {
           )}
         </div>
 
-        {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"
