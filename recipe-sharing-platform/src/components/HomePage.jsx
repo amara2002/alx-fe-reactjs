@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
-    fetch("/src/data.json") // static local file
+    fetch("/src/data.json")
       .then((res) => res.json())
       .then((data) => setRecipes(data))
-      .catch((err) => console.error("Error loading recipes:", err));
+      .catch((err) => console.error(err));
   }, []);
 
   return (
@@ -16,20 +17,19 @@ const HomePage = () => {
 
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {recipes.map((recipe) => (
-          <div
-            key={recipe.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:scale-105 transform transition"
-          >
-            <img
-              src={recipe.image}
-              alt={recipe.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{recipe.title}</h2>
-              <p className="text-gray-600">{recipe.summary}</p>
+          <Link key={recipe.id} to={`/recipe/${recipe.id}`}>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:scale-105 transform transition">
+              <img
+                src={recipe.image}
+                alt={recipe.title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{recipe.title}</h2>
+                <p className="text-gray-600">{recipe.summary}</p>
+              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
