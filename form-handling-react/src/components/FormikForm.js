@@ -21,16 +21,32 @@ export default function FormikForm() {
         }}
       >
         <Form>
-          <Field name="username" placeholder="Username" className="block border p-2 w-full mb-2" />
+          <Field
+            name="username"
+            placeholder="Username"
+            className="block border p-2 w-full mb-2"
+          />
           <ErrorMessage name="username" component="p" className="text-red-500" />
 
-          <Field name="email" type="email" placeholder="Email" className="block border p-2 w-full mb-2" />
+          <Field
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="block border p-2 w-full mb-2"
+          />
           <ErrorMessage name="email" component="p" className="text-red-500" />
 
-          <Field name="password" type="password" placeholder="Password" className="block border p-2 w-full mb-2" />
+          <Field
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="block border p-2 w-full mb-2"
+          />
           <ErrorMessage name="password" component="p" className="text-red-500" />
 
-          <button type="submit" className="bg-green-500 text-white px-4 py-2">Register</button>
+          <button type="submit" className="bg-green-500 text-white px-4 py-2">
+            Register
+          </button>
         </Form>
       </Formik>
     </div>
