@@ -6,6 +6,7 @@ import Profile from "./components/Profile";
 import ProfileDetails from "./components/ProfileDetails";
 import ProfileSettings from "./components/ProfileSettings";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BlogPost from "./components/BlogPost";  // <- import BlogPost
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,16 +26,12 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          {/* Nested Routes */}
           <Route path="details" element={<ProfileDetails />} />
           <Route path="settings" element={<ProfileSettings />} />
         </Route>
 
-        {/* Dynamic Route Example */}
-        <Route
-          path="/user/:userId"
-          element={<h2>User Profile Page (Dynamic Route)</h2>}
-        />
+        {/* Dynamic Blog Post Route */}
+        <Route path="/blog/:id" element={<BlogPost />} />
       </Routes>
     </Router>
   );
